@@ -427,12 +427,6 @@
       function onClick( e ) {
 	  //camera.position.z += 10;
 	  //console.log('click');
-	  /*
-	   var pos = new THREE.Vector3(0,100,100);
-	   var target = new THREE.Vector3(0,0,500);
-	   tweenCamera(pos,target);
-	  */
-	  
       }
       
       function onMouseUp( e ) {
@@ -644,21 +638,6 @@
 	  
       }		
       
-      function tweenCamera(position, target){
-	  new TWEEN.Tween( camera.position ).to( {
-	      x: position.x,
-	      y: position.y,
-	      z: position.z}, 600 )
-	      .easing( TWEEN.Easing.Sinusoidal.EaseInOut).start();
-	  new TWEEN.Tween( controls.target ).to( {
-	      x: target.x,
-	      y: target.y,
-	      z: target.z}, 600 )
-	      .easing( TWEEN.Easing.Sinusoidal.EaseInOut).start();
-      }
-      
-      
     </script>
-
   </body>
 </html>
