@@ -1,0 +1,281 @@
+html, body {
+	height: 100%;
+}
+body {
+	font-family: Arial;
+	background-color: #222222;
+	background: rgb(60,100,140); /* Old browsers */
+	background: -moz-radial-gradient(center, ellipse cover,  rgba(60,100,140,1) 0%, rgba(20,20,20,1) 100%); /* FF3.6+ */
+	background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(60,100,140,1)), color-stop(100%,rgba(20,20,20,1))); /* Chrome,Safari4+ */
+	background: -webkit-radial-gradient(center, ellipse cover,  rgba(60,100,140,1) 0%,rgba(20,20,20,1) 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-radial-gradient(center, ellipse cover,  rgba(60,100,140,1) 0%,rgba(20,20,20,1) 100%); /* Opera 12+ */
+	background: -ms-radial-gradient(center, ellipse cover,  rgba(60,100,140,1) 0%,rgba(20,20,20,1) 100%); /* IE10+ */
+	background: radial-gradient(ellipse at center,  rgba(60,100,140,1) 0%,rgba(20,20,20,1) 100%); /* W3C */
+
+	margin: 0;
+	font-family: Arial;
+	overflow: hidden;
+}
+#webgl_container {
+	z-index: 10;
+	overflow:hidden;
+}
+#canvasContainer {
+	z-index: 50;
+	opacity: 0.5;
+	width:292px;
+	position:absolute;
+	top: 0px;
+	/*right: 0px;
+	padding:5px;
+	overflow:hidden;*/
+	/*background: rgb(30,35,40);*/
+
+	-webkit-transition: opacity 0.5s ease;
+	-moz-transition: opacity 0.5s ease;
+	-ms-transition: opacity 0.5s ease;
+	-o-transition: opacity 0.5s ease;
+	transition: opacity 0.5s ease;
+}
+#canvasContainer:hover {
+	opacity:1;
+}
+.drawingOutput {
+	display:block;
+}
+.board {
+	width: 282px;
+	height: 361px;
+	padding-bottom:10px;
+}
+.tinyBoard {
+	margin: 0 auto;
+	background-color:#000;
+	width: 28px;
+	height: 28px;
+	border: solid thin #ccc;
+	overflow:hidden;
+	float:right;
+	
+}
+.instructions {
+	color: #fff;
+	font-size:24px;
+	text-align:left;
+	padding: 5px 0;
+}
+.info {
+	color: #abc;
+	font-size:18px;
+	text-align:right;
+	float:left;
+	height:37px;
+	width:247px;
+	line-height:30px;
+	margin-right:5px;
+}
+.ans {
+	font-size: 24px;
+	color: #fff;
+	margin: 0 auto;
+	background-color:#000;
+	width: 28px;
+	height: 28px;
+	border: solid thin #ccc;
+	float:right;
+	text-align:center;
+}
+#infobox {
+	width:300px;
+	position:absolute;
+	bottom:100px;
+	left:100px;	
+	background-color:#def;	
+	
+	opacity: 1;	
+	
+	-webkit-transition: opacity 0.5s ease;
+	-moz-transition: opacity 0.5s ease;
+	-ms-transition: opacity 0.5s ease;
+	-o-transition: opacity 0.5s ease;
+	transition: opacity 0.5s ease;
+	
+	
+	border: thin solid white;
+	-webkit-user-select: none;
+	padding: 0; 
+	margin: 0;	
+	
+	/* box-shadow: 5px 5px 10px #000; */
+}
+#infobox:hover {
+	display:none;
+}
+#nodeType {
+	font-weight: bold;
+	text-align: center;
+	background-color: #def;	
+	padding: 5px;
+}
+#imageInputContainer {
+	background-color: #000;
+	overflow:hidden;
+	text-align:center;
+}
+#nodeInputContainer {
+	background-color:#bcd;
+	padding: 5px;
+}
+#calcContainer {	
+	background-color:#9ab;
+	padding: 5px;
+}
+#nodeOutput {
+}
+#nodeOutputContainer {
+	background-color:#789;
+	padding: 5px;
+}
+.label {
+	float:left;
+	margin-right: 5px;
+}
+.math {
+}
+#imageLabel {
+	position:absolute;
+	padding:5px;
+	color:#fff;	
+	text-shadow: 1px 1px #000;
+}
+#filterLabel {
+	position:absolute;
+	color:#fff;	
+	padding:5px;
+	text-shadow: 1px 1px #000;
+}
+#drawingInterface {	
+	padding: 5px;
+	margin-bottom: 5px;
+	background: rgb(30,35,40);
+}
+#filterInterface {
+	padding:5px;
+	font-size:20px;
+	color: #abc;
+	background: rgb(30,35,40);
+}
+.settings {
+  display: table;
+  width: 100%;
+}
+.row {
+  display: table-row;
+}
+.cell {
+  display: table-cell;
+  vertical-align: middle;  
+}
+.settings .question,
+.settings .switch {
+  display: table-cell;
+  vertical-align: middle;
+  padding-bottom:5px;
+  width:100%;
+}
+.settings .question {
+  font-size: 18px;
+}
+input.cmn-toggle-yes-no + label {  
+  width: 80px;
+  height: 35px;
+}
+input.cmn-toggle-yes-no + label:before, input.cmn-toggle-yes-no + label:after {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  color: #fff;
+  font-size: 18px;
+  text-align: center;
+  line-height: 35px;
+}
+input.cmn-toggle-yes-no + label:before {
+  background-color: rgb(40,50,60);
+  content: attr(data-off);
+  -webkit-transition: -webkit-transform 0.5s;
+  -moz-transition: -moz-transform 0.5s;
+  -o-transition: -o-transform 0.5s;
+  transition: transform 0.5s;
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
+  -o-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+input.cmn-toggle-yes-no + label:after {
+  background-color: #333333;
+  content: attr(data-on);
+  -webkit-transition: -webkit-transform 0.5s;
+  -moz-transition: -moz-transform 0.5s;
+  -o-transition: -o-transform 0.5s;
+  transition: transform 0.5s;
+  
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+  -ms-transform: rotateY(180deg);
+  -o-transform: rotateY(180deg);
+  transform: rotateY(180deg);
+  
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
+  -o-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+input.cmn-toggle-yes-no:checked + label:before {
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+  -ms-transform: rotateY(180deg);
+  -o-transform: rotateY(180deg);
+  transform: rotateY(180deg);
+}
+input.cmn-toggle-yes-no:checked + label:after {
+  -webkit-transform: rotateY(0);
+  -moz-transform: rotateY(0);
+  -ms-transform: rotateY(0);
+  -o-transform: rotateY(0);
+  transform: rotateY(0);
+}
+.cmn-toggle {
+  position: absolute;
+  margin-left: -9999px;
+  visibility: hidden;
+}
+.cmn-toggle + label {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+::-moz-selection { /* Code for Firefox */
+    color: #FFFFFF;
+    background: #990033;
+}
+::selection {
+    color: #FFFFFF;
+    background: #990033;
+}
+#filterImage {	
+	overflow:hidden;
+}
+#inputImage {	
+	overflow:hidden;
+	
+}
