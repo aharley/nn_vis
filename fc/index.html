@@ -514,16 +514,6 @@
 	  });
       }
       
-      function updateInfoBoxPos() {
-	  var infobox = document.getElementById("infobox");
-	  var boxHeight = infobox.clientHeight;
-	  var boxWidth = infobox.clientWidth;
-	  var bot = Math.min(window.innerHeight - mousepx.y + 20, window.innerHeight - boxHeight);
-	  infobox.style.bottom = bot + "px";
-	  infobox.style.left = mousepx.x - boxWidth/2 + "px";
-	  
-      }
-      
       function updateInfoBox() {
 	  var infobox = document.getElementById("infobox");
 	  
