@@ -131,9 +131,11 @@ body {
     
     /* box-shadow: 5px 5px 10px #000; */
 }
+/*
 #infobox:hover {
     display:none;
 }
+*/
 #nodeType {
     font-weight: bold;
     text-align: center;
