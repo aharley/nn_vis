@@ -28,6 +28,7 @@
     <script src="../js/nn/common.js"></script>		
     <script src="../js/nn/fc.js"></script>		
     <script src="../js/createText.js"></script>	
+    <script src="../js/camera.js"></script>	
     
     <script src="../js/droid_sans_regular.typeface.js"></script>
     <script src="../js/colormaps/myColorMap_dark.js"></script>
@@ -426,65 +427,10 @@
 	  render();
       }
 
-      function onMouseDown( e ) {
-	  rotatingCam = true;
-	  infobox.style.visibility = "hidden";
-      }
-
-      function onClick( e ) {
-	  //camera.position.z += 10;
-	  //console.log('click');
-      }
-
-      function onMouseUp( e ) {
-	  //console.log('mouse up');
-	  rotatingCam = false;	
-
-	  /*
-	   new TWEEN.Tween( camera.position ).to( {
-	   x: 0,
-	   y: 0,
-	   z: 500 }, 2000 )
-	   .easing( TWEEN.Easing.Quadratic.InOut).start();
-	  */
-	  
-	  //camera.lookAt( scene.position );
-	  
-	  var infobox = document.getElementById("infobox");
-	  if (intersected) {
-	      if (infobox.style.visibility == "visible")
-		  infobox.style.visibility = "hidden";
-	      else
-		  infobox.style.visibility = "visible";
-	      
-	  } else {
-	      infobox.style.visibility = "hidden";
-	  }
-	  updateInfoBox();
-	  updateInfoBoxPos();
-
-      }
-
-      function onMouseMove( e ) {
-	  var newWidth = window.innerWidth;
-	  var newHeight = window.innerHeight;
-	  var widthCoeff = originalWidth/newWidth;
-	  var heightCoeff = originalHeight/newHeight;
-	  mouse.x = math.round(e.clientX * widthCoeff);
-	  mouse.y = math.round(e.clientY * heightCoeff);				
-
-	  mousepx.x = e.clientX;
-	  mousepx.y = e.clientY;
-	  
-      }
-
       function animate() {
-
 	  requestAnimationFrame( animate );
-
 	  render();
 	  stats.update();
-
       }
 
       function pick() {
