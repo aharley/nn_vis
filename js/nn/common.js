@@ -50,3 +50,53 @@ function updateTinyBoard() {
     }
 }
 
+function updateCubes() {
+    var r, g, b, id;
+    var numChildren = scene.children.length;
+    for ( var i = 0; i<numChildren; i++) {
+	if ( scene.children[i].name == 'cubes' ){
+	    var object = scene.children[i];
+	    
+	    var geometry = object.geometry;
+	    var faceCount = 0;						
+	    geometry.faces.forEach( function( f ) {
+		faceCount++;
+		if (faceCount % 12 == 1) {								
+		    id = math.floor(faceCount/12);
+		    if (isComputed){									
+			var v = allNodeOutputs[id];
+			var colorNum = math.round(v*99);
+			r = redLookup[colorNum];
+			g = greenLookup[colorNum];
+			b = blueLookup[colorNum];
+		    } else {
+			r=0; g=0; b=0;
+		    }
+		    color = new THREE.Color();
+		    color.setRGB( r,g,b )
+		}
+		var n = ( f instanceof THREE.Face3 ) ? 3 : 4;
+		for( var j = 0; j < n; j ++ ) {
+		    f.vertexColors[ j ] = color;
+		}
+	    });
+	    geometry.colorsNeedUpdate = true;
+	    geometry.verticesNeedUpdate = true;
+	}
+    }
+}
+function drawEdges() {
+    //console.log('draw edges');
+    var lineMat = new THREE.LineBasicMaterial({
+	color: 0x0000ff,
+	transparent:true, 
+	linewidth: 2
+    });
+    var lineGeom = new THREE.Geometry();
+    lineGeom.dynamic = true;
+    var line = new THREE.Line(lineGeom, lineMat);
+    line.name = 'edges';
+    scene.add(line);
+}
+
+
