@@ -2,9 +2,9 @@
 <html lang="en">
   <head>
     <title>3D Visualization of a Fully-Connected Neural Network</title>
-    <link rel="stylesheet" href="css/drawingboard2.css">
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" type="text/css" href="css/katex.min.css">
+    <link rel="stylesheet" href="../css/drawingboard2.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/katex.min.css">
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
@@ -25,7 +25,8 @@
     <script src="../js/drawingboard/controls/download.js"></script>
     
     <script src="../js/nn/300_100_tanh_aug_2pass.js"></script>
-    <script src="../js/nn/nn_funcs_merge.js"></script>		
+    <script src="../js/nn/common.js"></script>		
+    <script src="../js/nn/fc.js"></script>		
     <script src="../js/createText.js"></script>	
     
     <script src="../js/droid_sans_regular.typeface.js"></script>
@@ -35,10 +36,7 @@
     <script src="../js/stats.min.js"></script>
 
     <script src="../js/tween.min.js"></script>		
-
-    
-    <link rel="stylesheet" type="text/css" href="css/katex.min.css">
-    <script type="text/javascript" src="../js/katex.min.js"></script>
+    <script src="../js/katex.min.js"></script>
     
   </head>
   <body>
@@ -622,7 +620,7 @@
 	      console.log('error');
 	  }).done(function(){
 	      setupWeightArrays();
-	      createText();
+	      createText(text, 0, 100);
 	      drawCubes();
 	      drawEdges();
 	  });

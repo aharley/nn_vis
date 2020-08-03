@@ -1,6 +1,7 @@
-function createText() {
+function createText(text, x, y) {
 	group = new THREE.Group();
-	group.position.y = 100;
+	group.position.x = x;
+	group.position.y = y;
 	group.name = 'text';
 	scene.add( group );
 
