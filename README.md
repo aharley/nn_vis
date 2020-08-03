@@ -38,13 +38,13 @@ FAQ:
   
     Here is a bibtex snippet:
     ```
-@inproceedings{harley2015isvc,
-title = {An Interactive Node-Link Visualization of Convolutional Neural Networks},
-author = {Adam W Harley},
-booktitle = {ISVC},
-pages = {867--877},
-year = {2015}
-}
+    @inproceedings{harley2015isvc,
+    title = {An Interactive Node-Link Visualization of Convolutional Neural Networks},
+    author = {Adam W Harley},
+    booktitle = {ISVC},
+    pages = {867--877},
+    year = {2015}
+    }
    ```
 * I tried to run the code locally, and I see classifications, but I do not see the network visualization.
   * This is probably related to json requests being blocked by something called `CORS policy`. The solution is to upload the code to a web address and run it from there, instead of running locally.
