@@ -3,11 +3,12 @@
 ## Abstract
 Convolutional neural networks are at the core of state-of-the-art approaches to a variety of computer vision tasks. Visualizations of neural networks typically take the form of static node-link diagrams, which illustrate only the structure of a network, rather than the behavior. Motivated by this observation, this project presents a new interactive visualization of neural networks trained on handwritten digit recognition, with the intent of showing the actual behavior of the network given user-provided input. The user can interact with the network through a drawing pad, and watch the activation patterns of the network respond in real time.
 
-Paper PDF:
+## Paper PDF
 
 <a href="http://www.cs.cmu.edu/~aharley/vis/harley_vis_isvc15.pdf" rel="paper">![paper](images/paper.png)</a>
 
-Live demos (all available at [http://cs.cmu.edu/~aharley/nn_vis](http://cs.cmu.edu/~aharley/nn_vis)):
+## Live demos
+Live demos for all models are available at [http://cs.cmu.edu/~aharley/nn_vis](http://cs.cmu.edu/~aharley/nn_vis):
 
 1. 3d visualization of a multi-layer perceptron:
 
@@ -26,7 +27,7 @@ Live demos (all available at [http://cs.cmu.edu/~aharley/nn_vis](http://cs.cmu.e
    <a href="http://www.cs.cmu.edu/~aharley/nn_vis/cnn/2d.html" rel="cnn_2d">![cnn2d](images/cnn_2d.png)</a>
 
 
-FAQ:
+## FAQ
 
 * Can I use this in my course/textbook/presentation?
   * Yes! Please just cite the work appropriately.
@@ -47,6 +48,7 @@ FAQ:
     }
     ```
     
-* I tried to run the code locally, and I see classifications, but I do not see the network visualization.
+* I tried to run the code locally, and I see classifications, but I do not see the network visualization. What's wrong?
   * This is probably related to json requests being blocked by something called `CORS policy`. The solution is to upload the code to a web address and run it from there, instead of running locally.
-   
+
+Contact: aharley@cmu.edu
