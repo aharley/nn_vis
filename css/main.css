@@ -40,6 +40,26 @@ body {
 #canvasContainer:hover {
     opacity:1;
 }
+#canvasContainerRight {
+    z-index: 50;
+    opacity: 0.5;
+    width:292px;
+    position:absolute;
+    top: 0px;
+    right: 0px;
+    /*right: 0px;
+	padding:5px;
+	overflow:hidden;*/
+    /*background: rgb(30,35,40);*/
+    -webkit-transition: opacity 0.5s ease;
+    -moz-transition: opacity 0.5s ease;
+    -ms-transition: opacity 0.5s ease;
+    -o-transition: opacity 0.5s ease;
+    transition: opacity 0.5s ease;
+}
+#canvasContainerRight:hover {
+    opacity:1;
+}
 .drawingOutput {
     display:block;
 }

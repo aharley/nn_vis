@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>2D Visualization of a Convolutional Neural Network</title>
+    <link rel="stylesheet" href="../css/drawingboard2.css">
+    <link rel="stylesheet" href="../css/main.css?v=1.1">
+    <link rel="stylesheet" href="../css/katex.min.css">
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <script src="../js/three.min.js"></script>
+    <script src="../js/math.min.js"></script>
+    <script src="../js/jquery-1.11.2.min.js"></script>
+    <script src="../js/sylvester.src.js"></script>
+    <script src="../js/GeometryUtils.js"></script>		
+    <script src="../js/processing.min.js"></script>		
+    
+    <script src="../js/drawingboard/utils.js"></script>
+    <script src="../js/drawingboard/board.js"></script>
+    <script src="../js/drawingboard/controls/control.js"></script>
+    <script src="../js/drawingboard/controls/color.js"></script>
+    <script src="../js/drawingboard/controls/drawingmode.js"></script>
+    <script src="../js/drawingboard/controls/navigation.js"></script>
+    <script src="../js/drawingboard/controls/size.js"></script>
+    <script src="../js/drawingboard/controls/download.js"></script>
+    
+    <script src="../js/nn/convnet_weights.js"></script>
+    <script src="../js/nn/common.js"></script>		
+    <script src="../js/nn/conv.js"></script>		
+    <script src="../js/createText.js"></script>	
+    
+    <script src="../js/droid_sans_regular.typeface.js"></script>
+    <script src="../js/colormaps/myColorMap_dark.js"></script>
+
+    <script src="../js/myOrbitControls.js"></script>
+    <script src="../js/stats.min.js"></script>
+    <script src="../js/katex.min.js"></script>
+  </head>
+  <body>
+    
+    <div id="webgl_container">
+      <div id="infobox">
+	<div id="nodeType"></div>
+	<div id="imageInputContainer">
+	  <div id="inputImage">
+	    <div class="label" id="imageLabel">Input image:</div>
+	    <div id="inputCanvasContainer">
+	      <canvas id="inputCanvas"></canvas>
+	    </div>
+	  </div>
+	  <div id="filterImage">					
+	    <div class="label" id="filterLabel">Filter:</div>
+	    <div id="filterCanvasContainer">
+	      <canvas id="filterCanvas"></canvas>
+	    </div>
+	  </div>
+	</div>
+	<div id="nodeInputContainer">
+	  <div class="label">Weighted input: </div>
+	  <div id="nodeInput" class="math"></div>
+	</div>
+	<div id="calcContainer">
+	  <div class="label">Calculation: </div>
+	  <div id="calc" class="math"></div>
+	</div>				
+	<div id="nodeOutputContainer">
+	  <div class="label">Output: </div>
+	  <div id="nodeOutput" class="math"></div>
+	</div>
+      </div>
+    </div>
+    
+    <div id="canvasContainer"> <!--style="visibility: hidden">-->
+      <div id="drawingInterface">
+	<div class="instructions">Draw your number here</div>
+	<div class="board" id="custom-board"></div>
+	<div class="drawingOutput">
+	  <div class="row">
+	    <div class="info">Downsampled drawing:</div>
+	    <div class="tinyBoard">				
+	      <canvas id="tiny"></canvas>
+	    </div>
+	  </div>
+	  <div class="row">				
+	    <div class="info cell">First guess:</div>
+	    <div id="ans1" class="ans cell"></div>
+	  </div>
+	  <div class="row cell">					
+	    <div class="info cell">Second guess:</div>
+	    <div id="ans2" class="ans cell"></div>
+	  </div>
+	</div>
+      </div>
+    </div>
+    <div id="canvasContainerRight">
+      <div id="filterInterface">
+	<div class="instructions">Layer visibility</div>
+	<div class="settings">
+	  <div class="row">
+	    <div class="question">
+	      Input layer
+	    </div>
+	    <div class="switch">
+	      <input id="input_hide_button" class="cmn-toggle cmn-toggle-yes-no" type="checkbox">
+	      <label for="input_hide_button" data-on="Hide" data-off="Show"></label>
+	    </div>
+	  </div><!-- /row -->
+	  <div class="row">
+	    <div class="question">
+	      Convolution layer 1
+	    </div>
+	    <div class="switch">
+	      <input id="conv1_hide_button" class="cmn-toggle cmn-toggle-yes-no" type="checkbox">
+	      <label for="conv1_hide_button" data-on="Hide" data-off="Show"></label>
+	    </div>
+	  </div><!-- /row -->
+	  <div class="row">
+	    <div class="question">
+	      Downsampling layer 1
+	    </div>
+	    <div class="switch">
+	      <input id="down1_hide_button" class="cmn-toggle cmn-toggle-yes-no" type="checkbox">
+	      <label for="down1_hide_button" data-on="Hide" data-off="Show"></label>
+	    </div>
+	  </div><!-- /row -->
+	  <div class="row">
+	    <div class="question">
+	      Convolution layer 2
+	    </div>
+	    <div class="switch">
+	      <input id="conv2_hide_button" class="cmn-toggle cmn-toggle-yes-no" type="checkbox">
+	      <label for="conv2_hide_button" data-on="Hide" data-off="Show"></label>
+	    </div>
+	  </div><!-- /row -->
+	  <div class="row">
+	    <div class="question">
+	      Downsampling layer 2
+	    </div>
+	    <div class="switch">
+	      <input id="down2_hide_button" class="cmn-toggle cmn-toggle-yes-no" type="checkbox">
+	      <label for="down2_hide_button" data-on="Hide" data-off="Show"></label>
+	    </div>
+	  </div><!-- /row -->
+	  <div class="row">
+	    <div class="question">
+	      Fully-connected layer 1
+	    </div>
+	    <div class="switch">
+	      <input id="fc1_hide_button" class="cmn-toggle cmn-toggle-yes-no" type="checkbox">
+	      <label for="fc1_hide_button" data-on="Hide" data-off="Show"></label>
+	    </div>
+	  </div><!-- /row -->
+	  <div class="row">
+	    <div class="question">
+	      Fully-connected layer 2
+	    </div>
+	    <div class="switch">
+	      <input id="fc2_hide_button" class="cmn-toggle cmn-toggle-yes-no" type="checkbox">
+	      <label for="fc2_hide_button" data-on="Hide" data-off="Show"></label>
+	    </div>
+	  </div><!-- /row -->
+	  <div class="row">
+	    <div class="question">
+	      Output layer
+	    </div>
+	    <div class="switch">
+	      <input id="output_hide_button" class="cmn-toggle cmn-toggle-yes-no" type="checkbox">
+	      <label for="output_hide_button" data-on="Hide" data-off="Show"></label>
+	    </div>
+	  </div><!-- /row -->
+	</div>				
+      </div>
+    </div>
+    
+    <script>
+
+      
+      var input_hide = false, conv1_hide = false, down1_hide = false, conv2_hide = false, down2_hide = false, fc1_hide = false, fc2_hide = false, output_hide = false;
+      var input_was_hidden = false, conv1_was_hidden = false, down1_was_hidden = false, conv2_was_hidden = false, down2_was_hidden = false, fc1_was_hidden = false, fc2_was_hidden = false, output_was_hidden = false;
+      
+      var rotatingCam = false;
+      
+      
+      var container, stats, gl;
+      var camera, controls, scene, renderer;
+      var pickingData = [], pickingTexture, pickingScene;
+      var objects = [];
+      var highlightBox;
+      var allZeroes = true;
+      
+      var nPixels = 32*32;
+      var nConvNodes_1 = 		28*28*6;
+      var nConvNodes_1_down = 14*14*6;
+      var nConvNodes_2 = 		10*10*16;
+      var nConvNodes_2_down = 5*5*16;
+      var filterSize_1 = 5;
+      var filterSize_2 = 5;
+      var nConvFilters_1 = 6;
+      var nConvFilters_2 = 16;
+      var nConvLayers = 2;
+      var nHiddenNodes_1 = 120;
+      var nHiddenNodes_2 = 100;
+      var nHiddenLayers = 2;
+      var nFinalNodes = 10;
+      var nNodes = nPixels + nConvNodes_1 + nConvNodes_1_down + nConvNodes_2 + nConvNodes_2_down + nHiddenNodes_1 + nHiddenNodes_2 + nFinalNodes;
+      console.log('nNodes = ' + nNodes);
+      var allNodeNums = new Array(nNodes);
+      var allNodeInputs = new Array(nNodes);
+      var allNodeOutputs = new Array(nNodes);
+      var allNodeOutputsRaw = new Array(nNodes);
+      var finalOutputID = 0;
+      var isComputed = false;
+      var goodStart = false;
+      var hidden_weights_1a, hidden_weights_2a, final_weightsa;
+      var conv_weights_1a;
+      var conv_weights_2a;
+
+      var keeperIndices;
+      var nKeepers;
+      
+      var interID, row, col, ind_below;
+      var intersected = false;
+      
+      var posX = [], posY = [], posZ = [], layerNum = [];
+      
+      var originalWidth = window.innerWidth;
+      var originalHeight = window.innerHeight;
+
+      var mouse = new THREE.Vector2();
+      var mousepx = new THREE.Vector2();
+      
+      var filterNum, filterNum_below;
+      var nodeType;
+      var inputCanvasContainer = document.getElementById("inputCanvasContainer");
+      var filterCanvasContainer = document.getElementById("filterCanvasContainer");
+      var inputCanvas = document.getElementById("inputCanvas");
+      var filterCanvas = document.getElementById("filterCanvas");
+      var inputCtx = inputCanvas.getContext("2d");
+      var filterCtx = filterCanvas.getContext("2d");
+      
+      //var offset = new THREE.Vector3( 10, 10, 10 );
+
+      var nums = "0 1 2 3 4 5 6 7 8 9",
+	  height = 1,
+	  size = 9,
+	  hover = 460,
+
+	  curveSegments = 8,
+	  
+	  bevelThickness = 2,
+	  bevelSize = 1.5,
+	  bevelSegments = 3,
+	  bevelEnabled = false,
+
+	  font = "droid sans", // helvetiker, optimer, gentilis, droid sans, droid serif
+	  weight = "normal", // normal bold
+	  style = "normal"; // normal italic
+
+      var customBoard = new DrawingBoard.Board('custom-board', {
+	  background: "#000",
+	  color: "#fff",
+	  size: 30,
+	  controls: [
+	      { Navigation: { back: false, forward: false } },
+	      { DrawingMode: { filler: false } }
+	  ],
+	  controlsPosition: "bottom right",
+	  webStorage: 'session',
+	  droppable: false
+      });
+      
+      var tinyCtx = $("#tiny")[0].getContext("2d");
+      tinyCtx.scale(0.1,0.1);
+      function updateTinyBoard() {
+	  if (goodStart){
+	      
+	      var imageData = customBoard.getImg();
+	      
+	      var newCanvas = $("<canvas>")
+		  .attr("width", imageData.width)
+		  .attr("height", imageData.height)[0];
+	      
+	      newCanvas.getContext("2d").putImageData(imageData, 0, 0);
+	      tinyCtx.drawImage(newCanvas, 0, 0);
+	      getNNOutput();
+	      
+	      
+	  }
+      };
+
+      init();
+      loadData();
+      animate();
+
+      function init() {			
+	  container = document.getElementById("webgl_container");
+	  
+	  scene = new THREE.Scene();
+	  var aspect = window.innerWidth / window.innerHeight;
+	  camera = new THREE.OrthographicCamera( -680*aspect, 680*aspect, 600, -760, -100, 50 ); 
+	  scene.add( camera );
+
+	  pickingScene = new THREE.Scene();
+	  pickingTexture = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight );
+	  pickingTexture.minFilter = THREE.LinearFilter;
+	  pickingTexture.generateMipmaps = false;
+
+	  var light = new THREE.SpotLight( 0xffffff, 1.5 );
+	  light.name = "light";
+	  light.position.set( 0, 500, 2000 );
+	  scene.add( light );
+	  var light2 = new THREE.SpotLight( 0xffffff, 0.5);
+	  light2.name = "light";
+	  light2.position.set( 0, 200, -1000 );
+	  scene.add( light2 );
+	  var light3 = new THREE.AmbientLight( 0xcccccc);
+	  light3.name = "light";
+	  scene.add( light3 );
+
+	  highlightBox = new THREE.Mesh(
+	      new THREE.BoxGeometry( 12,12,12 ),
+	      new THREE.MeshLambertMaterial( { color: 0xffff00 }
+					   ) );
+	  highlightBox.visible = false;
+	  scene.add( highlightBox );
+	  
+	  
+	  hideInputBox = new THREE.Mesh(
+	      new THREE.BoxGeometry( 340, 20, 340 ),
+	      new THREE.MeshLambertMaterial( { color: 0x00ff00, transparent: true, opacity:0.1}
+					   ) );
+	  hideInputBox.position.set(0, -250, 0);
+	  hideInputBox.visible = true;
+	  //scene.add( hideInputBox );
+	  
+
+	  renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true} );
+	  renderer.setClearColor( 0x000000, 0 );
+	  renderer.setPixelRatio( window.devicePixelRatio );
+	  renderer.setSize( window.innerWidth, window.innerHeight );
+	  renderer.sortObjects = false;
+	  container.appendChild( renderer.domElement );
+
+	  
+	  var cameraControls;
+	  cameraControls = new THREE.OrbitControls( camera, renderer.domElement );
+	  cameraControls.target.set( 0, 0, 0 );
+
+	  stats = new Stats();
+	  stats.domElement.style.position = 'absolute';
+	  stats.domElement.style.top = '0px';
+	  container.appendChild( stats.domElement );
+
+	  renderer.domElement.addEventListener( 'mousemove', onMouseMove );
+	  renderer.domElement.addEventListener( 'mousedown', onMouseDown );
+	  renderer.domElement.addEventListener( 'click', onClick );
+	  renderer.domElement.addEventListener( 'mouseup', onMouseUp );
+	  window.addEventListener( 'resize', onWindowResize, false );
+	  
+	  getNNOutput();
+      }
+      
+      function drawCubes() {
+	  var weight = 1, i;
+	  var geometry = new THREE.Geometry();
+	  var pickingGeometry = new THREE.Geometry();
+	  var pickingMaterial = new THREE.MeshBasicMaterial( { vertexColors: THREE.VertexColors } );
+	  var defaultMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors, transparent: true} );
+
+	  var materials = [];
+	  for (i=0; i<nNodes; i++){
+	      materials[i] = new THREE.MeshLambertMaterial({ color: 0x00ff00, shading: THREE.FlatShading, transparent: true } );
+	  }
+
+	  var geom = new THREE.BoxGeometry( 9,9,9 );
+	  var hideGeom = new THREE.BoxGeometry(1,1,1);
+	  var color = new THREE.Color();
+
+	  var matrix = new THREE.Matrix4();
+	  var quaternion = new THREE.Quaternion();
+
+	  for ( i = 0; i < nNodes; i ++ ) {
+	      
+
+	      var position = new THREE.Vector3();
+	      position.x = posX[i];
+	      position.y = posY[i];
+	      position.z = posZ[i];
+
+	      var rotation = new THREE.Euler();
+	      rotation.x = 0;
+	      rotation.y = 0;
+	      rotation.z = 0;
+
+	      var scale = new THREE.Vector3();
+	      scale.x = 1;
+	      scale.y = 1;
+	      scale.z = 1;
+	      
+	      quaternion.setFromEuler( rotation, false );
+	      matrix.compose( position, quaternion, scale );
+	      
+	      if (isComputed){
+		  var v = allNodeOutputs[i];
+		  var colorNum = math.round(v*99);
+		  r = redLookup[colorNum];
+		  g = greenLookup[colorNum];
+		  b = blueLookup[colorNum];
+		  applyVertexColors( geom, color.setRGB( r,g,b ) );
+	      } else {
+		  applyVertexColors( geom, color.setRGB( 0,0,0 ) );
+	      }
+	      
+	      geometry.merge( geom, matrix );
+
+	      // give the geom's vertices a color corresponding to the "id"
+
+	      applyVertexColors( geom, color.setHex( i ) );
+
+	      pickingGeometry.merge( geom, matrix );
+
+	      pickingData[ i ] = {
+		  position: position,
+		  rotation: rotation,
+		  scale: scale, 
+		  id: i
+	      };
+
+	  }
+
+	  var drawnObject = new THREE.Mesh( geometry, defaultMaterial);//new THREE.MeshFaceMaterial(materials) );
+	  drawnObject.name = 'cubes';
+	  scene.add( drawnObject );
+
+	  pickingScene.add( new THREE.Mesh( pickingGeometry, pickingMaterial ) );			
+      }
+
+      function hideCubes() {
+	  var i, id;
+	  
+	  var cubeAdjust = 4;
+	  var numChildren = scene.children.length;
+	  for ( i = 0; i<numChildren; i++) {
+	      if ( scene.children[i].name == 'cubes' ){
+		  var object = scene.children[i];
+		  var geometry = object.geometry;
+		  
+		  if (!input_hide && input_was_hidden){
+		      adjustRangeOfCubes(geometry, 1, nPixels, -cubeAdjust);
+		      input_was_hidden = false;
+		  } else if (input_hide && !input_was_hidden){
+		      adjustRangeOfCubes(geometry, 1, nPixels, cubeAdjust);
+		      input_was_hidden = true;
+		  }
+
+		  if (!conv1_hide && conv1_was_hidden){
+		      adjustRangeOfCubes(geometry, nPixels+1, nPixels+nConvNodes_1, -cubeAdjust);
+		      conv1_was_hidden = false;
+		  } else if (conv1_hide && !conv1_was_hidden){
+		      adjustRangeOfCubes(geometry, nPixels+1, nPixels+nConvNodes_1, cubeAdjust);
+		      conv1_was_hidden = true;
+		  }
+
+		  if (!down1_hide && down1_was_hidden){
+		      adjustRangeOfCubes(geometry, nPixels+nConvNodes_1+1, nPixels+nConvNodes_1+nConvNodes_1_down, -cubeAdjust);
+		      down1_was_hidden = false;
+		  } else if (down1_hide && !down1_was_hidden){
+		      adjustRangeOfCubes(geometry, nPixels+nConvNodes_1+1, nPixels+nConvNodes_1+nConvNodes_1_down, cubeAdjust);
+		      down1_was_hidden = true;
+		  }
+
+		  if (!conv2_hide && conv2_was_hidden){
+		      adjustRangeOfCubes(geometry, nPixels+nConvNodes_1+nConvNodes_1_down+1, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2, -cubeAdjust);
+		      conv2_was_hidden = false;
+		  } else if (conv2_hide && !conv2_was_hidden){
+		      adjustRangeOfCubes(geometry, nPixels+nConvNodes_1+nConvNodes_1_down+1, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2, cubeAdjust);
+		      conv2_was_hidden = true;
+		  }
+		  
+		  if (!down2_hide && down2_was_hidden){
+		      adjustRangeOfCubes(geometry, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+1, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down, -cubeAdjust);
+		      down2_was_hidden = false;
+		  } else if (down2_hide && !down2_was_hidden){
+		      adjustRangeOfCubes(geometry, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+1, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down, cubeAdjust);
+		      down2_was_hidden = true;
+		  }
+
+		  if (!fc1_hide && fc1_was_hidden){
+		      adjustRangeOfCubes(geometry, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+1, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+nHiddenNodes_1, -cubeAdjust);
+		      fc1_was_hidden = false;
+		  } else if (fc1_hide && !fc1_was_hidden){
+		      adjustRangeOfCubes(geometry, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+1, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+nHiddenNodes_1, cubeAdjust);
+		      fc1_was_hidden = true;
+		  }
+
+		  if (!fc2_hide && fc2_was_hidden){
+		      adjustRangeOfCubes(geometry, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+nHiddenNodes_1+1, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+nHiddenNodes_1+nHiddenNodes_2, -cubeAdjust);
+		      fc2_was_hidden = false;
+		  } else if (fc2_hide && !fc2_was_hidden){
+		      adjustRangeOfCubes(geometry, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+nHiddenNodes_1+1, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+nHiddenNodes_1+nHiddenNodes_2, cubeAdjust);
+		      fc2_was_hidden = true;
+		  }
+
+		  if (!output_hide && output_was_hidden){
+		      adjustRangeOfCubes(geometry, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+nHiddenNodes_1+nHiddenNodes_2+1, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+nHiddenNodes_1+nHiddenNodes_2+nFinalNodes, -cubeAdjust);
+		      output_was_hidden = false;
+		  } else if (output_hide && !output_was_hidden){
+		      adjustRangeOfCubes(geometry, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+nHiddenNodes_1+nHiddenNodes_2+1, nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+nHiddenNodes_1+nHiddenNodes_2+nFinalNodes, cubeAdjust);
+		      output_was_hidden = true;
+		  }
+
+		  geometry.verticesNeedUpdate = true;
+	      }
+	  }
+	  pick();
+      }
+      
+      function adjustRangeOfCubes (geometry, from, to, cubeAdjust) {
+	  var vertCount = 0;
+	  
+	  geometry.vertices.forEach( function ( v ){
+	      var mod = vertCount % 8;
+	      var id = math.floor(vertCount/8) + 1;
+	      if (id >= from && id <= to){
+		  if (mod == 0) {
+		      v.x = v.x - cubeAdjust;
+		      v.y = v.y - cubeAdjust;
+		      v.z = v.z - cubeAdjust;
+		  } else if (mod == 1) {
+		      v.x = v.x - cubeAdjust;
+		      v.y = v.y - cubeAdjust; 
+		      v.z = v.z + cubeAdjust;
+		  } else if (mod == 2) {
+		      v.x = v.x - cubeAdjust;
+		      v.y = v.y + cubeAdjust;
+		      v.z = v.z - cubeAdjust;
+		  } else if (mod == 3) {
+		      v.x = v.x - cubeAdjust;
+		      v.y = v.y + cubeAdjust;
+		      v.z = v.z + cubeAdjust;
+		  } else if (mod == 4) {
+		      v.x = v.x + cubeAdjust;
+		      v.y = v.y - cubeAdjust;
+		      v.z = v.z + cubeAdjust;
+		  } else if (mod == 5) {
+		      v.x = v.x + cubeAdjust;
+		      v.y = v.y - cubeAdjust;
+		      v.z = v.z - cubeAdjust;
+		  } else if (mod == 6) {
+		      v.x = v.x + cubeAdjust;
+		      v.y = v.y + cubeAdjust;
+		      v.z = v.z + cubeAdjust;
+		  } else if (mod == 7) {
+		      v.x = v.x + cubeAdjust;
+		      v.y = v.y + cubeAdjust;
+		      v.z = v.z - cubeAdjust;
+		  }
+	      }
+	      vertCount++;
+	  });
+      }
+      
+      function updateCubes() {
+	  var r, g, b, i, id;
+	  var numChildren = scene.children.length;
+	  for ( i = 0; i<numChildren; i++) {
+	      if ( scene.children[i].name == 'cubes' ){
+		  var object = scene.children[i];
+		  var materials = object.material;
+		  var geometry = object.geometry;
+		  //console.log(materials);
+		  var faceCount = 0;
+		  /*
+		   for (r=1;r<100;r++) {
+		   geometry.material = new THREE.MeshLambertMaterial({ color: 0x0000ff, shading: THREE.FlatShading, transparent: false} );									
+		   }
+		  */
+		  
+		  //object.scale.set(0.1,0.1,0.1);
+		  var vertCount = 0;
+		  
+		  
+		  
+		  //console.log('found ' + vertCount + ' vertices');
+		  
+		  geometry.faces.forEach( function( f ) {
+		      faceCount++;
+		      if (faceCount % 12 == 1) {
+			  id = math.floor(faceCount/12);
+			  /*
+			   if (id <= 1024) {
+			   
+			   //materials[faceCount] = new THREE.MeshLambertMaterial({ color: 0x0000ff, shading: THREE.FlatShading, transparent: false} );									
+			   
+			   }
+			  */
+			  if (isComputed){
+			      var v = allNodeOutputs[id];
+			      var colorNum = math.round(v*99);
+			      r = redLookup[colorNum];
+			      g = greenLookup[colorNum];
+			      b = blueLookup[colorNum];
+			  } else {
+			      r=0; g=0; b=0;
+			  }
+			  color = new THREE.Color();				
+			  color.setRGB( r,g,b )
+		      }
+		      /*
+		       if (id <=1024){
+		       color.setRGB(0,0,0);
+		       }
+		      */
+		      //console.log('id = ' + id);
+		      var n = ( f instanceof THREE.Face3 ) ? 3 : 4;							
+		      for( var j = 0; j < n; j ++ ) {								
+			  f.vertexColors[ j ] = color;
+			  
+		      }
+		  });
+		  /*if (id <= 1024) {
+		   material.opacity = 0;
+		   material.needsUpdate = true;
+		   }*/
+		  //material.visible = false;
+		  //material.needsUpdate = true;
+		  
+		  geometry.colorsNeedUpdate = true;
+		  geometry.verticesNeedUpdate = true;
+	      }
+	  }
+      }
+      
+      function drawEdges() {
+	  //console.log('draw edges');
+	  var lineMat = new THREE.LineBasicMaterial({
+	      color: 0x0000ff,
+	      transparent:true, 
+	      linewidth: 2
+	  });
+	  var lineGeom = new THREE.Geometry();
+	  lineGeom.dynamic = true;
+	  var line = new THREE.Line(lineGeom, lineMat);
+	  line.name = 'edges';
+	  scene.add(line);
+      }
+      
+      function updateEdges() {
+	  var r=1, g=1, b=1, rw=1, gw, bw, i, j, v, colorNum, weight;
+	  //console.log('updating edges');
+	  var vertAdjust = 0;
+	  var zAdjust = 5;
+	  var numChildren = scene.children.length;
+	  var colors = [];
+	  vertCount = 0;
+	  for ( var c = 0; c<numChildren; c++) {
+	      if ( scene.children[c].name == 'edges' ){
+		  var object = scene.children[c];
+		  object.geometry.dispose();
+
+		  var lineGeom = new THREE.Geometry();
+		  lineGeom.dynamic = true;						
+		  
+		  if (highlightBox.visible) {
+		      ind = interID;
+		      var nodePos = posY[interID];
+		      if (layerNum[interID]==0) {
+			  // inp layer
+		      } else if (layerNum[interID]==1) {
+			  // conv1
+			  //var friendCount = 0;
+			  //console.log('row,col = ' + row + ', ' + col);
+			  for (j=1; j<=nPixels; j++){
+			      ind_below = j-1;
+			      temp_below = allNodeNums[ind_below]-1;
+			      var row_below = temp_below % 32;
+			      var col_below = math.floor(temp_below/32);
+			      
+			      if (row_below > row-1 && row_below < row + 5 && col_below > col-1 && col_below < col + 5) {
+				  //friendCount++;
+				  var ro=row_below - row;
+				  var co=col_below - col;
+				  var weight = conv_nodes[0][filterNum].e(ro+1,co+1);
+				  
+				  if (input_hide)
+				      vertAdjust = 0;
+				  
+				  lineGeom.vertices.push(new THREE.Vector3(posX[ind_below], posY[ind_below]+vertAdjust, posZ[ind_below]+zAdjust));
+				  lineGeom.vertices.push(new THREE.Vector3(posX[ind], posY[ind]-3, posZ[ind]+zAdjust));
+				  
+				  if (isComputed){
+				      v = allNodeOutputs[ind_below];
+				      colorNum = math.round(v*99);
+				      r = redLookup[colorNum];
+				      g = greenLookup[colorNum];
+				      b = blueLookup[colorNum];
+				  } else {
+				      r=0.7; 
+				      g=0.7; 
+				      b=0.7;
+				  }
+				  v = conv_weights_1a[filterNum][ro][co];
+				  colorNum = math.round(v*99);
+				  rw = 0;
+				  gw = greenLookup[colorNum];
+				  bw = blueLookup[colorNum];
+				  
+				  colors[ vertCount ] = new THREE.Color( rw,gw,bw );
+				  vertCount++;
+				  colors[ vertCount ] = new THREE.Color( rw,gw,bw );
+				  vertCount++;
+			      }
+			  }
+			  //console.log('friendCount = ' + friendCount);
+		      } else if (layerNum[interID]==2) {
+			  // down1
+			  for (j=1; j<=nConvNodes_1; j++){
+			      ind_below = nPixels+j-1;								
+			      temp_below = allNodeNums[ind_below]-1;
+			      filterNum_below = math.floor((ind_below-nPixels)/(28*28));
+			      var row_below = temp_below % 28;
+			      var col_below = math.floor(temp_below/28);
+			      if (filterNum_below==filterNum) {
+				  if (math.floor(row_below/2) == row && math.floor(col_below/2)==col) {
+				      var ro=row_below - row;
+				      var co=col_below - col;
+				      
+				      if (conv1_hide)
+					  vertAdjust = 0;
+				      
+				      lineGeom.vertices.push(new THREE.Vector3(posX[ind_below], posY[ind_below]+vertAdjust, posZ[ind_below]+zAdjust));
+				      lineGeom.vertices.push(new THREE.Vector3(posX[ind], posY[ind]-3, posZ[ind]+zAdjust));
+				      
+				      if (isComputed){
+					  v = allNodeOutputs[ind_below];
+					  colorNum = math.round(v*99);
+					  r = redLookup[colorNum];
+					  g = greenLookup[colorNum];
+					  b = blueLookup[colorNum];
+				      } else {
+					  r=0.7; 
+					  g=0.7; 
+					  b=0.7;
+				      }
+				      v=1;
+				      colorNum = math.round(v*99);
+				      rw = 0;										
+				      gw = greenLookup[colorNum];
+				      bw = blueLookup[colorNum];
+				      
+				      colors[ vertCount ] = new THREE.Color( rw,gw,bw );
+				      vertCount++;
+				      colors[ vertCount ] = new THREE.Color( rw,gw,bw );
+				      vertCount++;
+				  }
+			      }
+			  }
+		      } else if (layerNum[interID]==3) {
+			  // conv2
+			  for (j=1; j<=nConvNodes_1_down; j++){
+			      ind_below = nPixels+nConvNodes_1+j-1;								
+			      temp_below = allNodeNums[ind_below]-1;
+			      filterNum_below = math.floor((ind_below-nPixels-nConvNodes_1)/(14*14));
+			      var row_below = temp_below % 14;
+			      var col_below = math.floor(temp_below/14);
+			      if (keepers.e(filterNum_below+1,filterNum+1)==1) {
+				  if (row_below > row-1 && row_below < row + 5 && col_below > col-1 && col_below < col + 5) {
+				      var ro=row_below - row;
+				      var co=col_below - col;
+				      var filterKeeper = keeperIndices[filterNum][filterNum_below];
+				      var weight = conv_nodes[1][filterNum][filterKeeper].e(ro+1,co+1);
+				      
+				      if (down1_hide)
+					  vertAdjust = 0;
+				      
+				      lineGeom.vertices.push(new THREE.Vector3(posX[ind_below], posY[ind_below]+vertAdjust, posZ[ind_below]+zAdjust));
+				      lineGeom.vertices.push(new THREE.Vector3(posX[ind], posY[ind]-3, posZ[ind]+zAdjust));
+				      
+				      if (isComputed){
+					  v = allNodeOutputs[ind_below];
+					  colorNum = math.round(v*99);
+					  r = redLookup[colorNum];
+					  g = greenLookup[colorNum];
+					  b = blueLookup[colorNum];
+				      } else {
+					  r=0.7; 
+					  g=0.7; 
+					  b=0.7;
+				      }
+				      v = conv_weights_2a[filterNum][filterNum_below][ro][co];
+				      colorNum = math.round(v*99);
+				      rw = 0;
+				      gw = greenLookup[colorNum];
+				      bw = blueLookup[colorNum];
+				      
+				      colors[ vertCount ] = new THREE.Color( rw,gw,bw );
+				      vertCount++;
+				      colors[ vertCount ] = new THREE.Color( rw,gw,bw );
+				      vertCount++;
+				  }
+			      }
+			  }
+		      } else if (layerNum[interID]==4) {
+			  // down2
+			  for (j=1; j<=nConvNodes_1; j++){
+			      ind_below = nPixels+nConvNodes_1+nConvNodes_1_down+j-1;								
+			      temp_below = allNodeNums[ind_below]-1;
+			      filterNum_below = math.floor((ind_below-nPixels-nConvNodes_1-nConvNodes_1_down)/(10*10));
+			      var row_below = temp_below % 10;
+			      var col_below = math.floor(temp_below/10);
+			      if (filterNum_below==filterNum) {
+				  if (math.floor(row_below/2) == row && math.floor(col_below/2)==col) {
+				      var ro=row_below - row;
+				      var co=col_below - col;
+				      
+				      if (conv2_hide)
+					  vertAdjust = 0;
+				      
+				      lineGeom.vertices.push(new THREE.Vector3(posX[ind_below], posY[ind_below]+vertAdjust, posZ[ind_below]+zAdjust));
+				      lineGeom.vertices.push(new THREE.Vector3(posX[ind], posY[ind]-3, posZ[ind]+zAdjust));
+				      
+				      if (isComputed){
+					  v = allNodeOutputs[ind_below];
+					  colorNum = math.round(v*99);
+					  r = redLookup[colorNum];
+					  g = greenLookup[colorNum];
+					  b = blueLookup[colorNum];
+				      } else {
+					  r=0.7; 
+					  g=0.7; 
+					  b=0.7;
+				      }
+				      v=1;
+				      colorNum = math.round(v*99);
+				      rw = 0;										
+				      gw = greenLookup[colorNum];
+				      bw = blueLookup[colorNum];
+				      
+				      colors[ vertCount ] = new THREE.Color( rw,gw,bw );
+				      vertCount++;
+				      colors[ vertCount ] = new THREE.Color( rw,gw,bw );
+				      vertCount++;
+				  }
+			      }
+			  }
+		      } else if (layerNum[interID]==5) {
+			  // hidden layer 1
+			  for (j=1; j<=nConvNodes_2_down; j++){
+			      
+			      ind_below = nPixels + nConvNodes_1 + nConvNodes_1_down + nConvNodes_2 + j-1;
+			      var weight = hidden_weights_1.e(allNodeNums[ind],allNodeNums[ind_below]);
+			      
+			      if (down2_hide)
+				  vertAdjust = 0;
+
+			      lineGeom.vertices.push(new THREE.Vector3(posX[ind_below], posY[ind_below]+vertAdjust, posZ[ind_below]+zAdjust));
+			      lineGeom.vertices.push(new THREE.Vector3(posX[ind], posY[ind]-3, posZ[ind]+zAdjust));
+			      
+			      if (isComputed){
+				  v = allNodeOutputs[ind_below];
+				  colorNum = math.round(v*99);
+				  r = redLookup[colorNum];
+				  g = greenLookup[colorNum];
+				  b = blueLookup[colorNum];
+			      } else {
+				  r=0.7; 
+				  g=0.7; 
+				  b=0.7;
+			      }
+			      v = hidden_weights_1a[allNodeNums[ind]-1][allNodeNums[ind_below]-1];
+			      colorNum = math.round(v*99);
+			      rw = 0;
+			      gw = greenLookup[colorNum];
+			      bw = blueLookup[colorNum];
+			      
+			      colors[ vertCount ] = new THREE.Color( rw,gw,bw );
+			      vertCount++;
+			      colors[ vertCount ] = new THREE.Color( rw,gw,bw );
+			      vertCount++;
+			  }
+		      } else if (layerNum[interID]==6) {
+			  // hidden layer 2
+			  for (j=1; j<=nHiddenNodes_1; j++){
+			      ind_below = nPixels + nConvNodes_1 + nConvNodes_1_down + nConvNodes_2 + nConvNodes_2_down + j-1;
+			      var weight = hidden_weights_2.e(allNodeNums[ind],allNodeNums[ind_below]);
+
+			      if (fc1_hide)
+				  vertAdjust = 0;
+			      
+			      lineGeom.vertices.push(new THREE.Vector3(posX[ind_below], posY[ind_below]+vertAdjust, posZ[ind_below]+zAdjust));
+			      lineGeom.vertices.push(new THREE.Vector3(posX[ind], posY[ind]-3, posZ[ind]+zAdjust));
+			      if (isComputed){
+				  v = allNodeOutputs[ind_below];
+				  colorNum = math.round(v*99);
+				  r = redLookup[colorNum];
+				  g = greenLookup[colorNum];
+				  b = blueLookup[colorNum];
+			      } else {
+				  r=0.7; 
+				  g=0.7; 
+				  b=0.7;
+			      }
+			      v = hidden_weights_2a[allNodeNums[ind]-1][allNodeNums[ind_below]-1];
+			      colorNum = math.round(v*99);
+			      rw = 0;
+			      gw = greenLookup[colorNum];
+			      bw = blueLookup[colorNum];
+			      
+			      colors[ vertCount ] = new THREE.Color( rw,gw,bw );
+			      vertCount++;
+			      colors[ vertCount ] = new THREE.Color( rw,gw,bw );
+			      vertCount++;
+			  }
+		      } else if (layerNum[interID]==7) {
+			  // Output layer
+			  for (j=1; j<=nHiddenNodes_2; j++){
+			      ind_below = nPixels + nConvNodes_1 + nConvNodes_1_down + nConvNodes_2 + nConvNodes_2_down + nHiddenNodes_1 + j-1;
+			      var weight = final_weights.e(allNodeNums[ind],allNodeNums[ind_below]);
+
+			      if (fc2_hide)
+				  vertAdjust = 0;
+
+			      lineGeom.vertices.push(new THREE.Vector3(posX[ind_below], posY[ind_below]+vertAdjust, posZ[ind_below]+zAdjust));
+			      lineGeom.vertices.push(new THREE.Vector3(posX[ind], posY[ind]-3, posZ[ind]+zAdjust));
+			      if (isComputed){
+				  v = allNodeOutputs[ind_below];
+				  colorNum = math.round(v*99);
+				  r = redLookup[colorNum];
+				  g = greenLookup[colorNum];
+				  b = blueLookup[colorNum];
+			      } else {
+				  r=0.7; 
+				  g=0.7; 
+				  b=0.7;
+			      }
+			      v = final_weightsa[allNodeNums[ind]-1][allNodeNums[ind_below]-1];
+			      colorNum = math.round(v*99);
+			      rw = 0;
+			      gw = greenLookup[colorNum];
+			      bw = blueLookup[colorNum];
+			      
+			      colors[ vertCount ] = new THREE.Color( rw,gw,bw );
+			      vertCount++;
+			      colors[ vertCount ] = new THREE.Color( rw,gw,bw );
+			      vertCount++;
+			  }
+		      }
+		      v = allNodeOutputs[ind];
+		      colorNum = math.round(v*99);
+		      r = redLookup[colorNum];
+		      g = greenLookup[colorNum];
+		      b = blueLookup[colorNum];
+		      
+		  }
+		  var lineMat = new THREE.LineBasicMaterial( { color: 0xffffff, opacity: 1, linewidth: 1, vertexColors: THREE.VertexColors } );						
+		  object.material = lineMat;
+		  object.geometry.colors = colors;
+		  object.geometry.vertices = lineGeom.vertices;
+		  object.material.needsUpdate = true;
+		  object.geometry.colorsNeedUpdate = true;
+		  object.geometry.verticesNeedUpdate = true;
+		  break;
+	      }
+	  }
+      }
+      
+      function onWindowResize( e ) {
+	  //camera.aspect = window.innerWidth / window.innerHeight;
+	  //camera.updateProjectionMatrix();
+	  var aspect = window.innerWidth / window.innerHeight;
+	  camera.left = -680*aspect;
+	  camera.right = 680*aspect;
+	  camera.top = 600;
+	  camera.bottom = -760;
+	  camera.updateProjectionMatrix();
+	  
+	  renderer.setSize( window.innerWidth, window.innerHeight );
+	  render();
+      }
+
+      function onMouseDown( e ) {
+	  rotatingCam = true;
+	  infobox.style.visibility = "hidden";
+      }
+      
+      function onClick( e ) {
+	  //console.log('click');
+      }
+      
+      function onMouseUp( e ) {
+	  //console.log('mouse up');
+	  rotatingCam = false;	
+
+	  var infobox = document.getElementById("infobox");
+	  if (intersected) {
+	      if (infobox.style.visibility == "visible")
+		  infobox.style.visibility = "hidden";
+	      else
+		  infobox.style.visibility = "visible";
+	      
+	  } else {
+	      infobox.style.visibility = "hidden";
+	  }
+	  updateInfoBox();
+	  updateInfoBoxPos();
+
+      }
+
+      function onMouseMove( e ) {
+	  var newWidth = window.innerWidth;
+	  var newHeight = window.innerHeight;
+	  var widthCoeff = originalWidth/newWidth;
+	  var heightCoeff = originalHeight/newHeight;
+	  mouse.x = math.round(e.clientX * widthCoeff);
+	  mouse.y = math.round(e.clientY * heightCoeff);				
+
+	  mousepx.x = e.clientX;
+	  mousepx.y = e.clientY;
+	  
+      }
+
+      function animate() {
+
+	  requestAnimationFrame( animate );				
+	  render();				
+	  /*stats.update();*/
+
+      }
+
+      function pick() {
+
+	  //render the picking scene off-screen
+
+	  renderer.render( pickingScene, camera, pickingTexture );
+
+	  //create buffer for reading single pixel
+	  var pixelBuffer = new Uint8Array( 4 );
+
+	  //read the pixel under the mouse from the texture
+	  renderer.readRenderTargetPixels(pickingTexture, mouse.x, pickingTexture.height - mouse.y, 1, 1, pixelBuffer);
+
+	  //interpret the pixel as an ID
+
+	  var id = ( pixelBuffer[0] << 16 ) | ( pixelBuffer[1] << 8 ) | ( pixelBuffer[2] );
+	  var data = pickingData[ id ];
+
+	  if ( data && pixelBuffer[3]) {
+	      var temp = pickingData[id].id;
+	      //console.log('id = ' + id);
+	      if (!((input_hide && temp < nPixels) ||
+		    (conv1_hide && temp >= nPixels && temp < nPixels+nConvNodes_1) ||
+		    (down1_hide && temp >= nPixels+nConvNodes_1 && temp < nPixels+nConvNodes_1+nConvNodes_1_down) ||
+		    (conv2_hide && temp >= nPixels+nConvNodes_1+nConvNodes_1_down && temp < nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2) ||
+		    (down2_hide && temp >= nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2 && temp < nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down) ||
+		    (fc1_hide && temp >= nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down && temp < nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+nHiddenNodes_1) ||
+		    (fc2_hide && temp >= nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+nHiddenNodes_1 && temp < nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+nHiddenNodes_1+nHiddenNodes_2) ||
+		    (output_hide && temp >= nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+nHiddenNodes_1+nHiddenNodes_2 && temp < nPixels+nConvNodes_1+nConvNodes_1_down+nConvNodes_2+nConvNodes_2_down+nHiddenNodes_1+nHiddenNodes_2+nFinalNodes))) {
+		  
+		  interID = pickingData[id].id;
+		  
+		  
+		  if (layerNum[interID]==0) {
+		      nodeType = "Input layer";
+		      filterNum = -1;
+		      tempInd = allNodeNums[interID]-1;
+		      row = (tempInd) % 32;
+		      col = math.floor(tempInd/32);							
+		  } else if (layerNum[interID]==1) {
+		      nodeType = "Convolution layer 1";
+		      filterNum = math.floor((interID-nPixels)/(28*28));
+		      tempInd = allNodeNums[interID]-1;
+		      row = (tempInd) % 28;
+		      col = math.floor(tempInd/28);
+		  } else if (layerNum[interID]==2) {
+		      nodeType = "Downsampling layer 1";
+		      filterNum = math.floor((interID-nPixels-nConvNodes_1)/(14*14));
+		      tempInd = allNodeNums[interID]-1;
+		      row = (tempInd) % 14;
+		      col = math.floor(tempInd/14);						
+		  } else if (layerNum[interID]==3) {
+		      nodeType = "Convolution layer 2";
+		      filterNum = math.floor((interID-nPixels-nConvNodes_1-nConvNodes_1_down)/(10*10));
+		      tempInd = allNodeNums[interID]-1;							
+		      row = (tempInd) % 10;
+		      col = math.floor(tempInd/10);
+		  } else if (layerNum[interID]==4) {
+		      nodeType = "Downsampling layer 2";
+		      filterNum = math.floor((interID-nPixels-nConvNodes_1-nConvNodes_1_down-nConvNodes_2)/(5*5));
+		      tempInd = allNodeNums[interID]-1;
+		      row = (tempInd) % 5;
+		      col = math.floor(tempInd/5);
+		  } else if (layerNum[interID]==5) {							
+		      nodeType = "Fully-connected layer 1";
+		      filterNum = -1
+		  } else if (layerNum[interID]==6) {
+		      nodeType = "Fully-connected layer 2";
+		      filterNum = -1
+		  } else if (layerNum[interID]==7) {
+		      nodeType = "Output layer";
+		      filterNum = -1
+		  }
+		  
+		  //move our highlightBox so that it surrounds the picked object
+		  if ( data.position && data.rotation && data.scale ){
+		      highlightBox.position.copy( data.position );
+		      highlightBox.rotation.copy( data.rotation );
+		      //highlightBox.scale.copy( data.scale );//.add( offset );
+		      highlightBox.visible = true;
+		      intersected = true;
+		      updateInfoBoxPos();
+		  }
+	      }
+	  } else {
+	      //if(infobox.style.visibility == 'hidden') {
+	      highlightBox.visible = false;
+	      intersected = false;					
+	      //}
+	  }
+	  if (highlightBox.visible == true) {
+	      var r,g,b;
+	      if (isComputed){
+		  var v = allNodeOutputs[interID];
+		  var colorNum = math.round(v*99);
+		  r = redLookup[colorNum];
+		  g = greenLookup[colorNum];
+		  b = blueLookup[colorNum];
+	      } else {
+		  r=0, g=0, b=0;
+	      }
+	      highlightBox.material.color.setRGB(r,g,b);
+	      highlightBox.material.needsUpdate = true;
+	      updateInfoBox();
+	  }
+	  
+
+      }
+
+      function render() {
+	  
+	  if (!rotatingCam) {
+	      pick();
+	      updateEdges();
+	  }
+	  
+	  if (!highlightBox.visible) {	// if we intersected something
+	      document.getElementById("infobox").style.visibility = "hidden";
+	  }
+	  
+	  renderer.render( scene, camera );
+
+      }
+      
+      function loadData() {
+	  var nodeCount = 0;
+	  $.getJSON('./../js/nn/webgl_convnet_flat.json',function(data){
+	      $.each(data.nodes,function(i,node){
+		  posX[nodeCount] = node.x;
+		  posY[nodeCount] = node.y;
+		  posZ[nodeCount] = node.z;
+		  layerNum[nodeCount] = node.layerNum;
+		  nodeCount++;
+	      });
+	  }).error(function(){
+	      console.log('error');
+	  }).done(function(){
+	      setupWeightArrays();
+	      createText(nums, 0, 100);
+	      drawCubes();
+	      drawEdges();
+	      uncheckAll();
+	  });
+      }
+      
+      function updateInfoBoxPos() {
+	  var infobox = document.getElementById("infobox");
+	  var boxHeight = infobox.clientHeight;
+	  var boxWidth = infobox.clientWidth;
+	  var bot = Math.min(window.innerHeight - mousepx.y + 20, window.innerHeight - boxHeight);
+	  infobox.style.bottom = bot + "px";
+	  infobox.style.left = mousepx.x - boxWidth/2 + "px";
+	  
+      }
+      
+      function updateInfoBox() {
+	  var infobox = document.getElementById("infobox");
+	  var v,colorNum,r,g,b;
+	  //infobox.style.opacity = 0.9;
+	  //console.log('interID = ' + interID);
+	  var str;
+	  var nodePos = posY[interID];
+	  
+	  if (layerNum[interID] >=1 && layerNum[interID] <=4)
+	      str = nodeType +  ", filter " + (filterNum+1) + ", unit " + allNodeNums[interID]
+	  else 
+	      str = nodeType + ", unit " + allNodeNums[interID]
+	  $("#nodeType").html(str);
+
+	  if (!allZeroes) {
+	      str = allNodeInputs[interID].toFixed(2);
+	  } else {
+	      str = "0";					
+	  }
+	  document.getElementById("nodeInput").textContent=str;
+	  
+	  if (!allZeroes) {
+	      str = allNodeOutputsRaw[interID].toFixed(2);
+	      if (nodeType == "Output layer" && interID == finalOutputID){
+		  str = str + " (max!)"
+	      }
+	  } else {
+	      str = "0";
+	  }
+	  document.getElementById("nodeOutput").textContent=str;
+	  v = allNodeOutputs[interID];
+	  colorNum = math.round(v*99);
+	  r=0;
+	  g = math.round(greenLookup[colorNum]*255);
+	  b = math.round(blueLookup[colorNum]*255);
+	  var bkgStr = "rgb(" + r + "," + g + "," + b + ")";
+	  console.log(bkgStr);
+	  document.getElementById("nodeOutput").style.color = bkgStr;
+	  
+	  if (nodeType != "Input layer"){
+	      if (!allZeroes) {
+		  if (nodeType == "Downsampling layer 1" || nodeType == "Downsampling layer 2") {
+		      str = "max pooling";
+		  } else {
+		      str = "1.7159 tanh (2/3 * " + allNodeInputs[interID].toFixed(2) + ") = " + allNodeOutputsRaw[interID].toFixed(2);
+		  }
+	      } else {
+		  str = "1.7159 tanh (2/3 * 0) = 0";
+	      }
+	  } else {
+	      if (!allZeroes) {
+		  str = "(" + allNodeInputs[interID].toFixed(2) + "/255) * 1.275 - 0.1 = " + allNodeOutputsRaw[interID].toFixed(2);
+	      } else {
+		  str = "none";
+	      }
+	  }
+	  document.getElementById("calc").textContent=str;
+	  
+	  
+	  drawFilter();
+      }
+      
+      function drawFilter() {
+	  var i,j,f,x,y,colorNum,r,g,b,ro,co;
+	  var pixelSize = 20;
+	  var squareWidth, totalWidth=0;
+	  var boxWidth = 200;
+	  //console.log('filterNum = ' + filterNum);
+	  
+	  //var filterImage = document.getElementById("filterImage");
+	  var inputImage = document.getElementById("inputImage");
+	  filterCanvasContainer.style.height = "0px";
+	  inputCanvasContainer.style.height = "0px";
+	  if (layerNum[interID]==0) {			
+	      //input
+	      //filterImage.style.backgroundColor = "red";
+	  } else if (layerNum[interID]==1) {
+	      // conv1
+	      squareWidth = pixelSize*filterSize_1; 
+	      totalWidth = squareWidth;
+	      filterCtx.canvas.width = totalWidth;
+	      filterCtx.canvas.height = squareWidth;
+	      filterCanvasContainer.style.width = totalWidth + "px";
+	      filterCanvasContainer.style.height = squareWidth + "px";
+	      for (i=0;i<filterSize_1;i++){
+		  for (j=0;j<filterSize_1;j++){
+		      weight = conv_nodes[0][filterNum].e(i+1,j+1);
+		      colorNum = math.round(conv_weights_1a[filterNum][i][j]*99);
+		      r=0;
+		      g = math.round(greenLookup[colorNum]*255);
+		      b = math.round(blueLookup[colorNum]*255);
+		      filterCtx.fillStyle = "rgba(" + r + "," + g + "," + b + ", 1.0";
+		      filterCtx.fillRect(i*pixelSize, j*pixelSize, pixelSize, pixelSize);
+		  }
+	      }
+	      inputCtx.canvas.width = totalWidth;
+	      inputCtx.canvas.height = squareWidth;
+	      inputCanvasContainer.style.width = totalWidth + "px";
+	      inputCanvasContainer.style.height = squareWidth + "px";
+	      x=0;y=0;
+	      for (j=1; j<=nPixels; j++){
+		  ind_below = j-1;
+		  temp_below = allNodeNums[ind_below]-1;
+		  var row_below = temp_below % 32;
+		  var col_below = math.floor(temp_below/32);
+		  if (row_below > row-1 && row_below < row + 5 && col_below > col-1 && col_below < col + 5) {
+		      colorNum = math.round(allNodeOutputs[ind_below]*99);
+		      r=0;
+		      g = math.round(greenLookup[colorNum]*255);
+		      b = math.round(blueLookup[colorNum]*255);
+		      inputCtx.fillStyle = "rgba(" + r + "," + g + "," + b + ", 1.0";
+		      inputCtx.fillRect(x*pixelSize, y*pixelSize, pixelSize, pixelSize);
+		      x++; if (x == filterSize_1) { x=0; y++; }
+		  }
+	      }
+	  } else if (layerNum[interID]==2) {
+	      //nodeType = "Downsampling layer 1";
+	  } else if (layerNum[interID]==3) {
+	      // conv2
+	      squareWidth = pixelSize*filterSize_2; 
+	      totalWidth = nKeepers[filterNum]*pixelSize*filterSize_2;
+	      filterCtx.canvas.width = totalWidth;
+	      filterCtx.canvas.height = squareWidth;
+	      filterCanvasContainer.style.width = totalWidth + "px";
+	      filterCanvasContainer.style.height = squareWidth + "px";
+	      //filterCtx.fillRect(10,10,300,50);
+	      var keeperCount = 0
+	      var reverseKeeperCount = nKeepers[filterNum]-1;;
+	      for (f=0;f<nConvFilters_1;f++){
+		  if (keepers.e(f+1,filterNum+1)){
+		      for (i=0;i<filterSize_1;i++){
+			  for (j=0;j<filterSize_1;j++){
+			      weight = conv_nodes[1][filterNum][keeperCount].e(i+1,j+1);
+			      colorNum = math.round(conv_weights_2a[filterNum][f][i][j]*99);									
+			      r=0;
+			      g = math.round(greenLookup[colorNum]*255);
+			      b = math.round(blueLookup[colorNum]*255);
+			      filterCtx.fillStyle = "rgba(" + r + "," + g + "," + b + ", 1.0";
+			      filterCtx.fillRect(reverseKeeperCount*squareWidth+i*pixelSize, j*pixelSize, pixelSize, pixelSize);
+			  }
+		      }
+		      keeperCount++;
+		      reverseKeeperCount--;
+		  }
+	      }
+	      
+	      inputCtx.canvas.width = totalWidth;
+	      inputCtx.canvas.height = squareWidth;
+	      inputCanvasContainer.style.height = squareWidth + "px";
+	      inputCanvasContainer.style.width = totalWidth + "px";
+	      x=0;y=0;
+	      keeperCount = nKeepers[filterNum]-1;
+	      for (j=1; j<=nConvNodes_1_down; j++){
+		  ind_below = nPixels+nConvNodes_1+j-1;
+		  temp_below = allNodeNums[ind_below]-1;
+		  filterNum_below = math.floor((ind_below-nPixels-nConvNodes_1)/(14*14));
+		  var row_below = temp_below % 14;
+		  var col_below = math.floor(temp_below/14);
+		  if (keepers.e(filterNum_below+1,filterNum+1)==1) {
+		      if (row_below > row-1 && row_below < row + 5 && col_below > col-1 && col_below < col + 5) {
+			  colorNum = math.round(allNodeOutputs[ind_below]*99);
+			  r = math.round(redLookup[colorNum]*255);
+			  g = math.round(greenLookup[colorNum]*255);
+			  b = math.round(blueLookup[colorNum]*255);
+			  inputCtx.fillStyle = "rgba(" + r + "," + g + "," + b + ", 1.0";
+			  inputCtx.fillRect(keeperCount*squareWidth+x*pixelSize, y*pixelSize, pixelSize, pixelSize);
+			  x++; if (x == filterSize_1) { x=0; y++; }
+			  if (y == filterSize_1) { y=0; keeperCount--; }
+		      }
+		  }
+	      }
+	  } else if (layerNum[interID]==4) {
+	      //nodeType = "Downsampling layer 2";
+	  } else if (layerNum[interID]==5) {
+	      //nodeType = "Fully-connected layer 1";
+	  } else if (layerNum[interID]==6) {
+	      //nodeType = "Fully-connected layer 2";
+	  } else if (layerNum[interID]==7) {
+	      //nodeType = "Output layer";
+	  }
+	  
+	  if (totalWidth==0) {
+	      imageInputContainer.style.opacity = 0;
+	  } else {
+	      imageInputContainer.style.opacity = 1;
+	  }
+	  
+	  boxWidth = math.max(boxWidth, totalWidth);
+	  infobox.style.width = boxWidth + "px";
+	  
+	  if (boxWidth-totalWidth>0){
+	      inputImage.style.float = "left";
+	      //var marginLeft = math.round((boxWidth-totalWidth)/2);
+	      //inputCanvasContainer.style.paddingLeft = marginLeft + "px";
+	      //filterCanvasContainer.style.paddingLeft = marginLeft + "px";
+	  } else {
+	      inputImage.style.float = "none";
+	      //inputCanvasContainer.style.paddingLeft = 0;
+	      //filterCanvasContainer.style.paddingLeft = 0;
+	  }
+	  
+      }
+      
+      $('#input_hide_button').click(function() {
+	  input_hide = !input_hide;
+	  console.log('hiding input layer');
+	  hideCubes();
+      });
+      $('#conv1_hide_button').click(function() {
+	  conv1_hide = !conv1_hide;
+	  hideCubes();
+      });
+      $('#down1_hide_button').click(function() {
+	  down1_hide = !down1_hide;
+	  hideCubes();
+      });
+      $('#conv2_hide_button').click(function() {
+	  conv2_hide = !conv2_hide;
+	  hideCubes();
+      });
+      $('#down2_hide_button').click(function() {
+	  down2_hide = !down2_hide;
+	  hideCubes();
+      });
+      $('#fc1_hide_button').click(function() {
+	  fc1_hide = !fc1_hide;
+	  hideCubes();
+      });
+      $('#fc2_hide_button').click(function() {
+	  fc2_hide = !fc2_hide;
+	  hideCubes();
+      });
+      $('#output_hide_button').click(function() {
+	  output_hide = !output_hide;
+	  hideCubes();
+      });
+      
+      function uncheckAll(){ 
+	  var w = document.getElementsByTagName('input'); 
+	  for(var i = 0; i < w.length; i++){ 
+	      if(w[i].type=='checkbox'){ 
+		  w[i].checked = false; 
+	      }
+	  }
+      } 			
+      
+    </script>
+  </body>
+</html>
