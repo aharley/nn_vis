@@ -120,7 +120,7 @@
       var offset = new THREE.Vector3( 10, 10, 10 );
 
       
-      var text = "0 1 2 3 4 5 6 7 8 9",
+      var nums = "0 1 2 3 4 5 6 7 8 9",
 	  height = 1,
 	  size = 9,
 	  hover = 60,
@@ -441,7 +441,7 @@
 	      console.log('error');
 	  }).done(function(){
 	      setupWeightArrays();
-	      createText(text, 0, 100);
+	      createText(nums, 0, 100);
 	      drawCubes();
 	      drawEdges();
 	  });
