@@ -1,15 +1,126 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link href="../css/projectPage.css" rel="stylesheet" type="text/css"/>    
-    <script type="text/javascript" src="../js/jquery-1.11.1.min.js"></script>
+    <!-- <link href="web/projectPage.css" rel="stylesheet" type="text/css"/>     -->
+    <script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-61302010-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-61302010-1');
+    </script>
     <title>An Interactive Node-Link Visualization of Convolutional Neural Networks</title></head>
   <style>
     table {
-    border-collapse: collapse;
+	border-collapse: collapse;
     }
+    h1, h2, h3 {
+	line-height:1.5em;
+	font-weight:normal;
+    }
+    body {
+	font-family: 'Source Sans Pro', sans-serif;
+	//font-family: Arial, sans-serif;
+	font-size: 18px;
+	background:#fff;
+	line-height:1.5em;
+	margin: 0;
+    }
+    td,th {
+	font-size: 18px;
+    }
+    code {
+	font-size: 16px;
+    }
+    #container {
+	width: 100%;
+	margin: 0 auto;
+	background-color: #fff;
+    }
+    #page {
+	width: 100%;
+	//background-color: #fff;
+    }
+    #pageContent {
+	padding:20px 5% 20px 5%;
+	max-width:960px;
+	margin:0 auto;
+    }
+    a {
+	color:#06c;
+    }
+    .cite {
+	background:#f0f0f0;
+	padding:10px;
+    }
+    #pdf {
+	box-shadow: 0px 0px 10px #888888;
+	width:300px;
+	height:388px;
+	margin-right:20px;
+    }
+    #pdf:hover {
+	box-shadow: 0px 0px 10px #069;
+    }
+    hr {
+	margin: 20px 0;
+    }
+    table {
+	width: 100%;
+    }
+    table, th, td {
+	padding: 0;
+	vertical-align:middle;
+	color:#000;
+    }
+    .projectTitle {
+	padding-bottom:4px;
+    }
+    .projectTitle a {
+	color: #06c;
+    }
+    .project {
+	background-color:#f9f9f9;
+	margin-bottom: 40px;
+	//border: 1px solid #c0c0c0;
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+    }
+    .projects {
+	
+    }
+    .projects .image {
+	width:30%;
+	background-color:#fff;
+	//padding-right:10px;
+    }
+    .projects .text {
+	width:70%;
+	padding: 20px;
+    }
+    .hover {
+	background-color:#eeeeff;
+	//border: 1px solid #c0c0f9;
+	border-top: 1px solid #09f;
+	border-bottom: 1px solid #09f;
+    }
+    .feature {
+	border-top: 1px solid #09f;
+	border-bottom: 1px solid #09f;
+	padding: 0 2%; 
+	width: 96%;
+	background: #f0f6f9;
+    }
+    .feature img{
+	display: block;
+	margin: 0 auto;
+	padding-bottom: 1em;
+    }    
   </style>
   <body>
     <div id="container">
@@ -25,7 +136,7 @@
 	  <p>Convolutional neural networks are at the core of state-of-the-art approaches to a variety of computer vision tasks. Visualizations of neural networks typically take the form of static node-link diagrams, which illustrate only the structure of a network, rather than the behavior. Motivated by this observation, this paper presents a new interactive visualization of neural networks trained on handwritten digit recognition, with the intent of showing the actual behavior of the network given user-provided input. The user can interact with the network through a drawing pad, and watch the activation patterns of the network respond in real time.</p>
 	  <h2>Paper</h2>
 	  <div id="pdf">
-	    <a href="harley_vis_isvc15.pdf"><img src="images/paper.png" alt="An Interactive Node-Link Visualization of Convolutional Neural Networks"></a>
+	    <a href="harley_vis_isvc15.pdf"><img src="images/paper_noshadow.png" alt="An Interactive Node-Link Visualization of Convolutional Neural Networks"></a>
 	  </div>
 	  <h2>Citation</h2>
 	  <div class="cite">A. W. Harley, "An Interactive Node-Link Visualization of Convolutional Neural Networks," in ISVC, pages 867-877, 2015</div>
@@ -46,9 +157,9 @@
 	    <div class="project">				
 	      <table>
 		<tr>
-		  <td class="image" style="background-color:#000"><a href="./fc/"><img src="images/fcnet_480.png" alt="3D neural network visualization" style="width:100%"></a></td>
+		  <td class="image" style="background-color:#000"><a href="./mlp/3d.html"><img src="images/fcnet_480.png" alt="3D neural network visualization" style="width:100%"></a></td>
 		  <td class="text">
-		    <div class="projectTitle"><a href="./fc/">3D fully-connected network visualization</a></div>
+		    <div class="projectTitle"><a href="./mlp/3d.html">3D fully-connected network visualization</a></div>
 		    This network has 784 nodes on the bottom layer (corresponding to pixels), 300 nodes in the first hidden layer, 100 nodes in the second hidden layer, and 10 nodes in the output layer (corresponding to the 10 digits). 
 		  </td>
 		</tr>
@@ -57,9 +168,9 @@
 	    <div class="project">
 	      <table>
 		<tr>
-		  <td class="image" style="background-color:#000"><a href="./conv/"><img src="images/convnet_480.png" alt="3D neural network visualization" style="width:100%"></a></td>
+		  <td class="image" style="background-color:#000"><a href="./cnn/3d.html"><img src="images/convnet_480.png" alt="3D neural network visualization" style="width:100%"></a></td>
 		  <td class="text">
-		    <div class="projectTitle"><a href="./conv">3D convolutional network visualization</a></div>
+		    <div class="projectTitle"><a href="./cnn/3d.html">3D convolutional network visualization</a></div>
 		    This network has 1024 nodes on the bottom layer (corresponding to pixels), six 5x5 (stride 1) convolutional filters in the first hidden layer, followed by sixteen 5x5 (stride 1) convolutional filters in the second hidden layer, then three fully-connected layers, with 120 nodes in the first, 100 nodes in the second, and 10 nodes in the third. The convolutional layers are each followed by downsampling layer that does 2x2 max pooling (with stride 2).
 		  </td>
 		</tr>
@@ -68,9 +179,9 @@
 	    <div class="project">
 	      <table>
 		<tr>
-		  <td class="image" style="background-color:#000"><a href="./fc/flat.html"><img src="images/fc_flat_480.png" alt="2D neural network visualization" style="width:100%"></a></td>
+		  <td class="image" style="background-color:#000"><a href="./mlp/2d.html"><img src="images/fc_flat_480.png" alt="2D neural network visualization" style="width:100%"></a></td>
 		  <td class="text">
-		    <div class="projectTitle"><a href="./fc/flat.html">2D fully-connected network visualization</a></div>
+		    <div class="projectTitle"><a href="./mlp/2d.html">2D fully-connected network visualization</a></div>
 		    This is the same as the first visualization, but with the nodes flattened on a plane so that they are easier to see all at once.
 		  </td>
 		</tr>
@@ -79,9 +190,9 @@
 	    <div class="project">
 	      <table>
 		<tr>
-		  <td class="image" style="background-color:#000"><a href="./conv/flat.html"><img src="images/convnet_flat_480.png" alt="2D neural network visualization" style="width:100%"></a></td>
+		  <td class="image" style="background-color:#000"><a href="./cnn/2d.html"><img src="images/convnet_flat_480.png" alt="2D neural network visualization" style="width:100%"></a></td>
 		  <td class="text">
-		    <div class="projectTitle"><a href="./conv/flat.html">2D convolutional network visualization</a></div>
+		    <div class="projectTitle"><a href="./cnn/2d.html">2D convolutional network visualization</a></div>
 		    This is the same as the second visualization, but with the nodes flattened on a plane so that they are easier to see all at once.
 		  </td>
 		</tr>
@@ -104,14 +215,4 @@
       );
     </script>
   </body> 
-  <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-    ga('create', 'UA-61302010-1', 'auto');
-    ga('send', 'pageview');
-
-  </script>
 </html>
